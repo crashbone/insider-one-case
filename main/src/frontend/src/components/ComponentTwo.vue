@@ -8,7 +8,5 @@
 </script>
 
 <style lang="scss" scoped>
-.component-two {
-  padding: 10px;
-}
+
 </style>
