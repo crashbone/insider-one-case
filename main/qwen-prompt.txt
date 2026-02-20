@@ -2,6 +2,7 @@ You're in a empty git repository folder.
 
 Create a blank web project. Technical needs:
 1. Front-end:
+in main/src/frontend folder
 
 a. Tech stack:
 Vue 3 - Composition API
@@ -16,6 +17,8 @@ ii. 2 non-page components, component1, components, both with only text: "My Firs
 iii. one utils/myFirstUtilityToBeTested.ts file with one function that returns number: 99, and one test file for the myFirstUtilityToBeTested file that has one test that checks if the function returns 99
 
 Back-end:
+in main/src/backend folder
+
 
 a. Tech stack:
 Nodejs
