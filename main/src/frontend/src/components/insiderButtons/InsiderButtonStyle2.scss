@@ -1,0 +1,26 @@
+@use '/src/scss/color-palette.scss' as *;
+
+.insider-button-style2 {
+  padding: 0 13px;
+  gap: 11px;
+  flex-direction: row;
+  align-items: center;
+  height: 58px;
+  border: 1px solid $colorBlue150;
+  border-radius: 7.5px;
+  background-color: $colorGray50;
+  font-weight: 700;
+  color: $colorGray700;
+  font-size: 13.5px;
+
+  & .button_icon {
+    width: 30px;
+    height: 30px;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border: 1px solid $colorGray200;
+    border-radius: 5px;
+    font-weight: 400;
+  }
+}

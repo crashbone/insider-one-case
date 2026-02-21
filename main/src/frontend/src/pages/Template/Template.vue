@@ -5,22 +5,16 @@
                 <div class="page-title">Interactive Template Builder</div>
             </div>
             <div class="top-bar-right flex-row">
-                <div class="button style1">
-                    <div class="button-icon"></div>
-                    <div class="button-text">Undo</div>
-                </div>
-
-                <div class="button style1">
-                    <div class="button-icon"></div>
-                    <div class="button-text">Redo</div>
-                </div>
+                <InsiderButton variant="style1" :iconText="'↶'" text="Undo" />
+                <InsiderButton variant="style1" :iconText="'↷'" text="Redo" />
             </div>
         </div>
         <div class="center">
             <div class="left-bar">
                 <div class="elements-container">
                     <div class="sub-title">ELEMENTS</div>
-                    <template v-for="el in [
+                    <div class="elements">
+<template v-for="el in [
                         {
                             'letter': 'H',
                             'name': 'Heading'
@@ -42,12 +36,15 @@
                             'name': 'Divider'
                         }
                     ]">
-                        <div ref="elementRefs" class="button style2 draggable-element"
-                            @mousedown="startDrag($event, el)">
-                            <div class="button-icon">{{ el.letter }}</div>
-                            <div class="button-text">{{ el.name }}</div>
-                        </div>
+                        <InsiderButton
+                            variant="style2"
+                            :iconText="el.letter"
+                            :text="el.name"
+                            class="draggable-element"
+                            @mousedown="startDrag($event, el)"
+                        />
                     </template>
+                    </div>
                 </div>
             </div>
             <div class="template-canvas-container">
@@ -58,18 +55,9 @@
             </div>
         </div>
         <div class="bottom-bar flex-row">
-            <div class="button style1">
-                <div class="button-icon"></div>
-                <div class="button-text">New</div>
-            </div>
-            <div class="button style1">
-                <div class="button-icon"></div>
-                <div class="button-text">Save</div>
-            </div>
-            <div class="button style1">
-                <div class="button-icon"></div>
-                <div class="button-text">Export JSON</div>
-            </div>
+            <InsiderButton variant="style1" text="New" />
+            <InsiderButton variant="style1" text="Save" />
+            <InsiderButton variant="style1" text="Export JSON" />
         </div>
 
         <!-- Drag preview - cloned button element -->
@@ -94,11 +82,11 @@ import ComponentOne from '@/components/ComponentOne.vue'
 import ComponentTwo from '@/components/ComponentTwo.vue'
 import TemplateCanvas from '@/components/TemplateCanvas/TemplateCanvas.vue'
 import CanvasElement from '@/components/CanvasElement/CanvasElement.vue'
+import InsiderButton from '@/components/insiderButtons/InsiderButton.vue'
 import { useTemplateCanvasStore } from '@/store/TemplateCanvas'
 
 const store = useTemplateCanvasStore()
 
-const elementRefs = ref<HTMLElement[]>([])
 const dragPreviewRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 const isInCanvas = ref(false)

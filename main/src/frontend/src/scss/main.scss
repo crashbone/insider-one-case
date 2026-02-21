@@ -4,6 +4,10 @@
   font-family: Roboto;
 }
 
+.page-title, .button {
+  user-select: none;
+}
+
 html, body, #app {
   height: 100%;
 }
@@ -30,60 +34,4 @@ div {
   font-size: 11px;
   color: $colorGray600;
   font-weight: 600;
-}
-
-// ==============
-// TODO: CREATE A NEW COMPONENT
-// ==============
-.button.style1 {
-  flex-direction: row;
-  padding: 9px 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 5.5px;
-  border-radius: 6px;
-  border: 1px solid #DDDDDD;
-
-  .button-icon {
-    width: 13.5px;
-    height: 13.5px;
-  }
-}
-
-// ==============
-// TODO: CREATE A NEW COMPONENT
-// ==============
-.button.style2 {
-  padding-left: 13px;
-  gap: 11px;
-  flex-direction: row;
-  align-items: center;
-  height: 58px;
-  border: 1px solid $colorBlue150;
-  border-radius: 7.5px;
-  background-color: $colorGray50;
-  font-weight: 700;
-  color: $colorGray700;
-  font-size: 13.5px;
-
-  .button-icon {
-    width: 30px;
-    height: 30px;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid $colorGray200;
-    border-radius: 5px;
-    font-weight: 400;
-  }
-}
-
-
-
-// debug
-// div {
-//   border: 1px dashed black;
-// }
-
-.button-icon {
-  border: 1px dashed black;
 }

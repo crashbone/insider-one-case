@@ -1,0 +1,17 @@
+@use '/src/scss/color-palette.scss' as *;
+
+.insider-button-style1 {
+  flex-direction: row;
+  padding: 9px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 5.5px;
+  border-radius: 6px;
+  border: 1px solid $colorGray200;
+  cursor: pointer;
+
+  & .button_icon {
+    width: 13.5px;
+    height: 13.5px;
+  }
+}

@@ -1,14 +1,11 @@
 <template>
     <div class="canvas-element" :class="[`state-${draggingState}`]">
-        
-        <div class="button style2">
-            <div class="button-icon">H</div>
-            <div class="button-text">Heading</div>
-        </div>
+        <InsiderButton variant="style2" :iconText="'H'" text="Heading" />
     </div>
 </template>
 
 <script setup lang="ts">
+import InsiderButton from '@/components/insiderButtons/InsiderButton.vue'
 export type CanvasElementDraggingState = 'no-dragging' | 'dragging-out-canvas' | 'dragging-in-canvas'
 
 withDefaults(defineProps<{
