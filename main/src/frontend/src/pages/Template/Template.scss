@@ -1,0 +1,52 @@
+@use "/src/scss/color-palette.scss" as *;
+
+.page.template {
+  height: 100%;
+  .top-bar {
+    width: 100%;
+    height: 60px;
+    border-bottom: 1px solid $colorGray200;
+
+    .top-bar-left {
+      padding: 0 23px;
+    }
+
+    .top-bar-right {
+      gap: 8px;
+    }
+  }
+
+  >.center {
+    flex-direction: row;
+    flex-grow: 1;
+
+    .left-bar {
+      padding: 0 16px;
+      width: 200px;
+      border-right: 1px solid $colorGray200;
+
+      .elements-container {
+        gap: 8px;
+      }
+
+      .button.style2 {
+        width: 100%;
+      }
+    }
+
+    .center-preview {
+      flex-grow: 1;
+      background-color: $colorGray150;
+    }
+    
+    .right-properties {
+      border-left: 1px solid $colorGray200;
+      width: 279.5px;
+    }
+  }
+
+  .bottom-bar {
+    height: 58px;
+  }
+}
+
