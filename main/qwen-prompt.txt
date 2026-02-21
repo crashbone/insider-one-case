@@ -1,0 +1,41 @@
+Hey QWEN!
+
+You are in a backend & frontend project. After this project is complete, users should be able to use this project in order to create:
+
+- A template, representing a popup
+- A JSON file, containing all the necessary data for the template / popup
+
+----------------
+
+The frontend is supposed to be very helpful for our users. Allowing users to:
+
+1. Drag & Drop elements from left bar
+  - Cursor should change to the element while dragging when cursor is outside the canvas.
+  - Canvas should represent where the element will be dropped when cursor is inside the canvas.
+  - The dragged element should snap to:
+    - Corners of the canvas
+    - Edges of the other elements
+    - Centers of the other elements
+  with the sensitivity of 8px
+
+2. Resize by dragging at the edges of canvas & elements, supporting everything listed above
+
+More details can be found at "main/project-details-plain-text.txt".
+NOTE!: Do read that file before answering any questions.
+
+----------------
+
+After all of this, don't start developing at all. This is only for you (QWEN) to understand what the project is supposed to be.
+
+If you've understood this all, just let me know, say sth. like "I understood, what do we do next" or something like that.
+
+
+----------------
+
+let's work on our first drag & drop element, heading H
+
+let's use vueuse/core, for snapping, for now, let's just add canvas 0,0
+point and nothing else, left-bar elements should not move, create a new copy and
+move the copy, until mouse enters the canvas, once it enters the canvas, we
+should see an actual DOM element (you can keep id 20x20 red box for now) and
+not the left-bar element. lets keep the changes small and proceed with small steps
