@@ -50,8 +50,8 @@
                     </template>
                 </div>
             </div>
-            <div class="center-preview">
-
+            <div class="template-canvas-container">
+                <TemplateCanvas />
             </div>
             <div class="right-properties">
 
@@ -80,5 +80,6 @@
 <script setup lang="ts">
 import ComponentOne from '@/components/ComponentOne.vue'
 import ComponentTwo from '@/components/ComponentTwo.vue'
+import TemplateCanvas from '@/components/TemplateCanvas/TemplateCanvas.vue'
 </script>
 <style src="./Template.scss" lang="scss"></style>

@@ -34,9 +34,11 @@
       }
     }
 
-    .center-preview {
+    .template-canvas-container {
       flex-grow: 1;
       background-color: $colorGray150;
+      justify-content: center;
+      align-items: center;
     }
     
     .right-properties {
