@@ -40,7 +40,7 @@
       justify-content: center;
       align-items: center;
     }
-    
+
     .right-properties {
       border-left: 1px solid $colorGray200;
       width: 279.5px;
@@ -49,6 +49,21 @@
 
   .bottom-bar {
     height: 58px;
+  }
+
+  .draggable-element {
+    cursor: grab;
+    user-select: none;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .drag-preview {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
   }
 }
 

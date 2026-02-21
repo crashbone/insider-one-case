@@ -2,12 +2,11 @@ import { defineStore } from 'pinia'
 
 export interface CanvasElement {
   id: string
-  type: 'heading' | 'text' | 'button' | 'image'
   x: number
   y: number
 }
 
-export const useAppStore = defineStore('app', {
+export const useTemplateCanvasStore = defineStore('templateCanvas', {
   state: () => ({
     elements: [] as CanvasElement[],
   }),
