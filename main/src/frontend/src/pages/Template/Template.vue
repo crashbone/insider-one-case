@@ -5,6 +5,7 @@
                 <div class="page-title">Interactive Template Builder</div>
             </div>
             <div class="top-bar-right flex-row">
+                <div class="justify-center">NOT ENOUGH TIME / NOT IMPLEMENTED</div>
                 <InsiderButton variant="style1" :iconText="'↶'" text="Undo" />
                 <InsiderButton variant="style1" :iconText="'↷'" text="Redo" />
             </div>
@@ -14,13 +15,19 @@
                 <div class="elements-container">
                     <div class="sub-title">ELEMENTS</div>
                     <div class="elements">
-                        <template v-for="el in ELEMENT_PALETTE">
+                        <template v-for="el in [
+                            { icon: 'H', label: 'Heading', type: 'heading' as const },
+                            { icon: 'T', label: 'Text', type: 'text' as const },
+                            { icon: '□', label: 'Button', type: 'button' as const },
+                            { icon: '▣', label: 'Image', type: 'image' as const },
+                            { icon: '—', label: 'Divider', type: 'divider' as const }
+                        ]">
                             <InsiderButton
                                 variant="style2"
-                                :iconText="el.letter"
-                                :text="el.name"
+                                :icon-text="el.icon"
+                                :text="el.label"
                                 class="draggable-element"
-                                @mousedown="startDrag($event, el)"
+                                @mousedown="startDrag($event, el.type)"
                             />
                         </template>
                     </div>
@@ -29,11 +36,12 @@
             <div class="template-canvas-container">
                 <TemplateCanvas />
             </div>
-            <div class="right-properties">
-
+            <div class="right-properties justify-center align-center text-center">
+                NOT ENOUGH TIME / NOT IMPLEMENTED
             </div>
         </div>
-        <div class="bottom-bar flex-row">
+        <div class="bottom-bar flex-row align-center text-center"">
+            <div>NOT ENOUGH TIME / NOT IMPLEMENTED</div>
             <InsiderButton variant="style1" icon-text="+" text="New" />
             <InsiderButton variant="style1" text="Save" />
             <InsiderButton variant="style1" text="Export JSON" />
@@ -59,7 +67,6 @@ import CanvasElement from '@/components/canvasElements/CanvasElement.vue'
 import InsiderButton from '@/components/insiderButtons/InsiderButton.vue'
 import { useTemplateCanvasStore, type ElementType } from '@/store/TemplateCanvas'
 import {
-    ELEMENT_PALETTE,
     DRAG_PREVIEW_OFFSET_X,
     DRAG_PREVIEW_OFFSET_Y,
     createDragPreviewElement,
@@ -79,7 +86,7 @@ const canvasElementDraggingState = computed((): CanvasElementDraggingState => {
 
 const isDragging = ref(false)
 const previewPosition = ref({ x: 0, y: 0 })
-const draggedElementType = ref<{ letter: string, name: string, type: ElementType } | null>(null)
+const draggedElementType = ref<ElementType | null>(null)
 
 const dragPreviewElement = computed(() => {
     const type: ElementType = draggedElementType.value?.type || 'heading'
@@ -123,9 +130,9 @@ function getCanvasRelativePosition(clientX: number, clientY: number): { x: numbe
     }
 }
 
-function startDrag(event: MouseEvent, element: { letter: string, name: string, type: ElementType }) {
+function startDrag(event: MouseEvent, type: ElementType) {
     isDragging.value = true
-    draggedElementType.value = element
+    draggedElementType.value = type
 
     previewPosition.value = {
         x: event.clientX - DRAG_PREVIEW_OFFSET_X,
@@ -151,7 +158,7 @@ function onDragEnd(event: MouseEvent) {
     if (isPreviewInCanvas.value && draggedElementType.value) {
         const canvasPos = getCanvasRelativePosition(event.clientX, event.clientY)
         if (canvasPos) {
-            const type = draggedElementType.value.type
+            const type = draggedElementType.value
             const x = Math.max(0, canvasPos.x - DRAG_PREVIEW_OFFSET_X)
             const y = Math.max(0, canvasPos.y - DRAG_PREVIEW_OFFSET_Y)
             const id = generateId()

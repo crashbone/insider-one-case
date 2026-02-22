@@ -36,15 +36,6 @@ export const DEFAULT_IMAGE_URL = 'https://via.placeholder.com/120x100'
 export const DEFAULT_IMAGE_ALT_TEXT = 'Image'
 export const DEFAULT_DIVIDER_COLOR = '#DDDDDD'
 
-// Element type metadata for palette
-export const ELEMENT_PALETTE = [
-    { letter: 'H', name: 'Heading', type: 'heading' as const },
-    { letter: 'T', name: 'Text', type: 'text' as const },
-    { letter: '□', name: 'Button', type: 'button' as const },
-    { letter: '▣', name: 'Image', type: 'image' as const },
-    { letter: '—', name: 'Divider', type: 'divider' as const }
-]
-
 export interface ElementBaseProps {
     id: string
     x: number
