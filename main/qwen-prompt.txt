@@ -30,12 +30,3 @@ After all of this, don't start developing at all. This is only for you (QWEN) to
 If you've understood this all, just let me know, say sth. like "I understood, what do we do next" or something like that.
 
 
-----------------
-
-let's work on our first drag & drop element, heading H
-
-let's use vueuse/core, for snapping, for now, let's just add canvas 0,0
-point and nothing else, left-bar elements should not move, create a new copy and
-move the copy, until mouse enters the canvas, once it enters the canvas, we
-should see an actual DOM element (you can keep id 20x20 red box for now) and
-not the left-bar element. lets keep the changes small and proceed with small steps

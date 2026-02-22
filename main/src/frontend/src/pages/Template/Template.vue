@@ -17,23 +17,23 @@
 <template v-for="el in [
                         {
                             'letter': 'H',
-                            'name': 'Heading'
+                            'name': 'Heading',
+                            'type': 'heading' as const
                         },
                         {
                             'letter': 'T',
-                            'name': 'Text'
+                            'name': 'Text',
+                            'type': 'text' as const
                         },
                         {
                             'letter': '□',
-                            'name': 'Button'
+                            'name': 'Button',
+                            'type': 'button' as const
                         },
                         {
                             'letter': '▣',
-                            'name': 'Image'
-                        },
-                        {
-                            'letter': '—',
-                            'name': 'Divider'
+                            'name': 'Image',
+                            'type': 'image' as const
                         }
                     ]">
                         <InsiderButton
@@ -68,7 +68,7 @@
                 top: previewPosition.y + 'px',
             }">
 
-            <CanvasElement :dragging-state="isInCanvas ? 'dragging-in-canvas' : 'dragging-out-canvas'" />
+            <CanvasElementComp :dragging-state="isInCanvas ? 'dragging-in-canvas' : 'dragging-out-canvas'" :element="dragPreviewElement" />
         </div>
 
         <ComponentOne />
@@ -77,13 +77,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import ComponentOne from '@/components/ComponentOne.vue'
 import ComponentTwo from '@/components/ComponentTwo.vue'
 import TemplateCanvas from '@/components/TemplateCanvas/TemplateCanvas.vue'
-import CanvasElement from '@/components/CanvasElement/CanvasElement.vue'
+import CanvasElementComp from '@/components/canvasElements/CanvasElement.vue'
 import InsiderButton from '@/components/insiderButtons/InsiderButton.vue'
-import { useTemplateCanvasStore } from '@/store/TemplateCanvas'
+import { useTemplateCanvasStore, type ElementType, type CanvasElement, type TextBasedElement } from '@/store/TemplateCanvas'
 
 const store = useTemplateCanvasStore()
 
@@ -91,6 +91,46 @@ const dragPreviewRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 const isInCanvas = ref(false)
 const previewPosition = ref({ x: 0, y: 0 })
+const draggedElementType = ref<{ letter: string, name: string, type: ElementType } | null>(null)
+
+const dragPreviewElement = computed((): CanvasElement => {
+    const type: ElementType = draggedElementType.value?.type || 'heading'
+    const base = {
+        id: 'preview',
+        x: 0,
+        y: 0,
+        width: type === 'button' ? 100 : 120,
+        height: type === 'image' ? 100 : 40,
+    }
+
+    if (type === 'heading' || type === 'text') {
+        return { 
+            ...base, 
+            type: type as 'heading' | 'text', 
+            content: type === 'heading' ? 'Heading' : 'Text content', 
+            fontSize: type === 'heading' ? 18 : 14, 
+            color: '#000000', 
+            alignment: 'left' as const 
+        } satisfies TextBasedElement
+    }
+    if (type === 'button') {
+        return { 
+            ...base, 
+            type: 'button' as const, 
+            text: 'Button', 
+            backgroundColor: '#4a90d9', 
+            textColor: '#ffffff', 
+            borderRadius: 4 
+        }
+    }
+    // type === 'image'
+    return { 
+        ...base, 
+        type: 'image' as const, 
+        url: 'https://via.placeholder.com/120x100', 
+        altText: 'Image' 
+    }
+})
 
 function getCanvasRect(): DOMRect | null {
     const canvas = document.querySelector('.template-canvas') as HTMLElement
@@ -115,8 +155,8 @@ function checkCanvasCollision(pos: { x: number, y: number }) {
         return
     }
 
-    const previewCenterX = pos.x + 20
-    const previewCenterY = pos.y + 10
+    const previewCenterX = pos.x + 60
+    const previewCenterY = pos.y + 20
 
     isInCanvas.value = (
         previewCenterX >= canvasRect.left &&
@@ -126,13 +166,14 @@ function checkCanvasCollision(pos: { x: number, y: number }) {
     )
 }
 
-function startDrag(event: MouseEvent, _element: { letter: string, name: string }) {
+function startDrag(event: MouseEvent, element: { letter: string, name: string, type: ElementType }) {
     isDragging.value = true
     isInCanvas.value = false
+    draggedElementType.value = element
 
     previewPosition.value = {
-        x: event.clientX - 20,
-        y: event.clientY - 10,
+        x: event.clientX - 60,
+        y: event.clientY - 20,
     }
 
     document.addEventListener('mousemove', onDrag)
@@ -143,28 +184,87 @@ function onDrag(event: MouseEvent) {
     if (!isDragging.value) return
 
     previewPosition.value = {
-        x: event.clientX - 20,
-        y: event.clientY - 10,
+        x: event.clientX - 60,
+        y: event.clientY - 20,
     }
 
     checkCanvasCollision(previewPosition.value)
 }
 
+function generateId(): string {
+    return `el-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+}
+
 function onDragEnd(event: MouseEvent) {
     isDragging.value = false
 
-    if (isInCanvas.value) {
+    if (isInCanvas.value && draggedElementType.value) {
         const canvasPos = getCanvasRelativePosition(event.clientX, event.clientY)
         if (canvasPos) {
-            store.addElement({
-                x: canvasPos.x - 20,
-                y: canvasPos.y - 10,
-            })
+            const type = draggedElementType.value.type
+            const baseProps = {
+                id: generateId(),
+                x: Math.max(0, canvasPos.x - 60),
+                y: Math.max(0, canvasPos.y - 20),
+                width: type === 'button' ? 100 : 120,
+                height: type === 'image' ? 100 : 40,
+            }
+            
+            if (type === 'heading' || type === 'text') {
+                store.addElement({
+                    ...baseProps,
+                    type: type as 'heading' | 'text',
+                    content: type === 'heading' ? 'Heading' : 'Text content',
+                    fontSize: type === 'heading' ? 18 : 14,
+                    color: '#000000',
+                    alignment: 'left' as const
+                } satisfies TextBasedElement)
+            } else if (type === 'button') {
+                store.addElement({
+                    ...baseProps,
+                    type: 'button' as const,
+                    text: 'Button',
+                    backgroundColor: '#4a90d9',
+                    textColor: '#ffffff',
+                    borderRadius: 4
+                })
+            } else if (type === 'image') {
+                store.addElement({
+                    ...baseProps,
+                    type: 'image' as const,
+                    url: 'https://via.placeholder.com/120x100',
+                    altText: 'Image'
+                })
+            }
         }
     }
+    
+    draggedElementType.value = null
 
     document.removeEventListener('mousemove', onDrag)
     document.removeEventListener('mouseup', onDragEnd)
 }
+
+// Keyboard shortcuts
+function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Delete' || event.key === 'Backspace') {
+        // Don't delete if user is typing in an input
+        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+            return
+        }
+        
+        if (store.selectedElementId) {
+            store.removeElement(store.selectedElementId)
+        }
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('keydown', handleKeyDown)
+})
+
+onUnmounted(() => {
+    document.removeEventListener('keydown', handleKeyDown)
+})
 </script>
 <style src="./Template.scss" lang="scss"></style>
