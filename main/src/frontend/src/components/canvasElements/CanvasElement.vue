@@ -1,7 +1,7 @@
 <template>
     <div
          class="canvas-element"
-         :class="[`state-${draggingState}`, { 'selected': isSelected }]"
+         :class="[element.type, { 'selected': isSelected }]"
          @mousedown="onMouseDown">
         <component :is="elementComponent" :element="element" />
 
@@ -17,29 +17,25 @@
 
 <script setup lang="ts">
 import { computed, type Component } from 'vue'
-import { type CanvasElement } from '@/store/TemplateCanvas'
+import { type TemplateElement } from '@/models/TemplateElement'
 import {
     type ResizeHandle,
     calculateDragPosition,
     calculateResize,
 } from '@/utils/canvasMouseHandleService'
-import { HeadingElement, TextElement, ButtonElement, ImageElement } from '@/components/canvasElements'
+import { HeadingElement, TextElement, ButtonElement, ImageElement, DividerElement } from '@/components/canvasElements'
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from '@/store/TemplateCanvas'
 
-export type CanvasElementDraggingState = 'no-dragging' | 'dragging-out-canvas' | 'dragging-in-canvas'
-
-const props = withDefaults(defineProps<{
-    draggingState?: CanvasElementDraggingState
-    element: CanvasElement
+const props = defineProps<{
+    element: TemplateElement
     isSelected?: boolean
-}>(), {
-    draggingState: 'no-dragging',
-    isSelected: false
-})
+}>()
 
 const emit = defineEmits<{
     select: []
     move: [position: { x: number, y: number }]
     resize: [size: { width: number, height: number }]
+    delete: []
 }>()
 
 const elementComponent = computed(() => {
@@ -48,6 +44,7 @@ const elementComponent = computed(() => {
         text: TextElement,
         button: ButtonElement,
         image: ImageElement,
+        divider: DividerElement,
     }
     return componentMap[props.element.type]
 })
@@ -72,6 +69,16 @@ function handleDragStart(event: MouseEvent) {
     function onMouseUp() {
         document.removeEventListener('mousemove', onMouseMove)
         document.removeEventListener('mouseup', onMouseUp)
+
+        // Check if element is outside canvas after drag ends
+        const finalX = props.element.x
+        const finalY = props.element.y
+        const centerX = finalX + props.element.width / 2
+        const centerY = finalY + props.element.height / 2
+
+        if (centerX < 0 || centerX > CANVAS_WIDTH || centerY < 0 || centerY > CANVAS_HEIGHT) {
+            emit('delete')
+        }
     }
 
     document.addEventListener('mousemove', onMouseMove)
@@ -106,4 +113,4 @@ function handleResizeStart(event: MouseEvent, handle: ResizeHandle) {
 }
 </script>
 
-<style src="./CanvasElement.scss" lang="scss" scoped></style>
+<style src="./CanvasElement.scss" lang="scss"></style>

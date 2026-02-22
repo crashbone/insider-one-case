@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { type ButtonElement } from '@/store/TemplateCanvas'
+import { type ButtonElement } from '@/models/ButtonElement'
 
 const props = defineProps<{
     element: ButtonElement

@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { type TextBasedElement } from '@/store/TemplateCanvas'
+import { type TextBasedElement } from '@/models/TextBasedElement'
 
 const props = defineProps<{
     element: TextBasedElement
@@ -18,12 +18,3 @@ const style = computed(() => ({
     textAlign: props.element.alignment,
 }))
 </script>
-
-<style lang="scss" scoped>
-.canvas-element-content {
-    width: 100%;
-    height: 100%;
-    white-space: normal;
-    overflow: hidden;
-}
-</style>

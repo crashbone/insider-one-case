@@ -14,36 +14,15 @@
                 <div class="elements-container">
                     <div class="sub-title">ELEMENTS</div>
                     <div class="elements">
-<template v-for="el in [
-                        {
-                            'letter': 'H',
-                            'name': 'Heading',
-                            'type': 'heading' as const
-                        },
-                        {
-                            'letter': 'T',
-                            'name': 'Text',
-                            'type': 'text' as const
-                        },
-                        {
-                            'letter': '□',
-                            'name': 'Button',
-                            'type': 'button' as const
-                        },
-                        {
-                            'letter': '▣',
-                            'name': 'Image',
-                            'type': 'image' as const
-                        }
-                    ]">
-                        <InsiderButton
-                            variant="style2"
-                            :iconText="el.letter"
-                            :text="el.name"
-                            class="draggable-element"
-                            @mousedown="startDrag($event, el)"
-                        />
-                    </template>
+                        <template v-for="el in ELEMENT_PALETTE">
+                            <InsiderButton
+                                variant="style2"
+                                :iconText="el.letter"
+                                :text="el.name"
+                                class="draggable-element"
+                                @mousedown="startDrag($event, el)"
+                            />
+                        </template>
                     </div>
                 </div>
             </div>
@@ -55,81 +34,77 @@
             </div>
         </div>
         <div class="bottom-bar flex-row">
-            <InsiderButton variant="style1" text="New" />
+            <InsiderButton variant="style1" icon-text="+" text="New" />
             <InsiderButton variant="style1" text="Save" />
             <InsiderButton variant="style1" text="Export JSON" />
         </div>
 
         <!-- Drag preview - cloned button element -->
-        <div v-if="isDragging" ref="dragPreviewRef"
-             class="drag-preview"
-             :style="{
-                left: previewPosition.x + 'px',
-                top: previewPosition.y + 'px',
-            }">
-
-            <CanvasElementComp :dragging-state="isInCanvas ? 'dragging-in-canvas' : 'dragging-out-canvas'" :element="dragPreviewElement" />
-        </div>
-
-        <ComponentOne />
-        <ComponentTwo />
+        <CanvasElement v-if="isDragging"
+                        :class="`${canvasElementDraggingState} test`"
+                       :element="dragPreviewElement"
+                       :style="{
+                        left: previewPosition.x + 'px',
+                        top: previewPosition.y + 'px',
+                        width: dragPreviewElement.width + 'px',
+                        height: dragPreviewElement.height + 'px',
+                    }" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import ComponentOne from '@/components/ComponentOne.vue'
-import ComponentTwo from '@/components/ComponentTwo.vue'
 import TemplateCanvas from '@/components/TemplateCanvas/TemplateCanvas.vue'
-import CanvasElementComp from '@/components/canvasElements/CanvasElement.vue'
+import CanvasElement from '@/components/canvasElements/CanvasElement.vue'
 import InsiderButton from '@/components/insiderButtons/InsiderButton.vue'
-import { useTemplateCanvasStore, type ElementType, type CanvasElement, type TextBasedElement } from '@/store/TemplateCanvas'
+import { useTemplateCanvasStore, type ElementType } from '@/store/TemplateCanvas'
+import {
+    ELEMENT_PALETTE,
+    DRAG_PREVIEW_OFFSET_X,
+    DRAG_PREVIEW_OFFSET_Y,
+    createDragPreviewElement,
+    createInitialElement,
+    generateId
+} from '@/utils/initialElementGeneration'
 
 const store = useTemplateCanvasStore()
 
-const dragPreviewRef = ref<HTMLElement | null>(null)
+type CanvasElementDraggingState = 'no-dragging' | 'dragging-out-canvas' | 'dragging-in-canvas'
+
+const canvasElementDraggingState = computed((): CanvasElementDraggingState => {
+    if (!isDragging.value) return 'no-dragging'
+
+    return isPreviewInCanvas.value ? 'dragging-in-canvas' : 'dragging-out-canvas'
+})
+
 const isDragging = ref(false)
-const isInCanvas = ref(false)
 const previewPosition = ref({ x: 0, y: 0 })
 const draggedElementType = ref<{ letter: string, name: string, type: ElementType } | null>(null)
 
-const dragPreviewElement = computed((): CanvasElement => {
+const dragPreviewElement = computed(() => {
     const type: ElementType = draggedElementType.value?.type || 'heading'
-    const base = {
-        id: 'preview',
-        x: 0,
-        y: 0,
-        width: type === 'button' ? 100 : 120,
-        height: type === 'image' ? 100 : 40,
-    }
+    return createDragPreviewElement(type)
+})
 
-    if (type === 'heading' || type === 'text') {
-        return { 
-            ...base, 
-            type: type as 'heading' | 'text', 
-            content: type === 'heading' ? 'Heading' : 'Text content', 
-            fontSize: type === 'heading' ? 18 : 14, 
-            color: '#000000', 
-            alignment: 'left' as const 
-        } satisfies TextBasedElement
-    }
-    if (type === 'button') {
-        return { 
-            ...base, 
-            type: 'button' as const, 
-            text: 'Button', 
-            backgroundColor: '#4a90d9', 
-            textColor: '#ffffff', 
-            borderRadius: 4 
-        }
-    }
-    // type === 'image'
-    return { 
-        ...base, 
-        type: 'image' as const, 
-        url: 'https://via.placeholder.com/120x100', 
-        altText: 'Image' 
-    }
+const isPreviewInCanvas = computed(() => {
+    const canvasRect = getCanvasRect()
+    if (!canvasRect) return false
+
+    const elementLeft = previewPosition.value.x - canvasRect.left
+    const elementTop = previewPosition.value.y - canvasRect.top
+    const elementRight = elementLeft + dragPreviewElement.value.width
+    const elementBottom = elementTop + dragPreviewElement.value.height
+
+    // Element center must be inside canvas for valid drop
+    const centerX = elementLeft + dragPreviewElement.value.width / 2
+    const centerY = elementTop + dragPreviewElement.value.height / 2
+
+    return (
+        centerX >= 0 &&
+        centerX <= canvasRect.width &&
+        centerY >= 0 &&
+        centerY <= canvasRect.height
+    )
 })
 
 function getCanvasRect(): DOMRect | null {
@@ -148,32 +123,13 @@ function getCanvasRelativePosition(clientX: number, clientY: number): { x: numbe
     }
 }
 
-function checkCanvasCollision(pos: { x: number, y: number }) {
-    const canvasRect = getCanvasRect()
-    if (!canvasRect) {
-        isInCanvas.value = false
-        return
-    }
-
-    const previewCenterX = pos.x + 60
-    const previewCenterY = pos.y + 20
-
-    isInCanvas.value = (
-        previewCenterX >= canvasRect.left &&
-        previewCenterX <= canvasRect.right &&
-        previewCenterY >= canvasRect.top &&
-        previewCenterY <= canvasRect.bottom
-    )
-}
-
 function startDrag(event: MouseEvent, element: { letter: string, name: string, type: ElementType }) {
     isDragging.value = true
-    isInCanvas.value = false
     draggedElementType.value = element
 
     previewPosition.value = {
-        x: event.clientX - 60,
-        y: event.clientY - 20,
+        x: event.clientX - DRAG_PREVIEW_OFFSET_X,
+        y: event.clientY - DRAG_PREVIEW_OFFSET_Y,
     }
 
     document.addEventListener('mousemove', onDrag)
@@ -184,61 +140,28 @@ function onDrag(event: MouseEvent) {
     if (!isDragging.value) return
 
     previewPosition.value = {
-        x: event.clientX - 60,
-        y: event.clientY - 20,
+        x: event.clientX - DRAG_PREVIEW_OFFSET_X,
+        y: event.clientY - DRAG_PREVIEW_OFFSET_Y,
     }
-
-    checkCanvasCollision(previewPosition.value)
-}
-
-function generateId(): string {
-    return `el-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
 }
 
 function onDragEnd(event: MouseEvent) {
     isDragging.value = false
 
-    if (isInCanvas.value && draggedElementType.value) {
+    if (isPreviewInCanvas.value && draggedElementType.value) {
         const canvasPos = getCanvasRelativePosition(event.clientX, event.clientY)
         if (canvasPos) {
             const type = draggedElementType.value.type
-            const baseProps = {
-                id: generateId(),
-                x: Math.max(0, canvasPos.x - 60),
-                y: Math.max(0, canvasPos.y - 20),
-                width: type === 'button' ? 100 : 120,
-                height: type === 'image' ? 100 : 40,
-            }
-            
-            if (type === 'heading' || type === 'text') {
-                store.addElement({
-                    ...baseProps,
-                    type: type as 'heading' | 'text',
-                    content: type === 'heading' ? 'Heading' : 'Text content',
-                    fontSize: type === 'heading' ? 18 : 14,
-                    color: '#000000',
-                    alignment: 'left' as const
-                } satisfies TextBasedElement)
-            } else if (type === 'button') {
-                store.addElement({
-                    ...baseProps,
-                    type: 'button' as const,
-                    text: 'Button',
-                    backgroundColor: '#4a90d9',
-                    textColor: '#ffffff',
-                    borderRadius: 4
-                })
-            } else if (type === 'image') {
-                store.addElement({
-                    ...baseProps,
-                    type: 'image' as const,
-                    url: 'https://via.placeholder.com/120x100',
-                    altText: 'Image'
-                })
-            }
+            const x = Math.max(0, canvasPos.x - DRAG_PREVIEW_OFFSET_X)
+            const y = Math.max(0, canvasPos.y - DRAG_PREVIEW_OFFSET_Y)
+            const id = generateId()
+
+            const newElement = createInitialElement(type, x, y, id)
+            store.addElement(newElement)
+            store.selectElement(id)
         }
     }
-    
+
     draggedElementType.value = null
 
     document.removeEventListener('mousemove', onDrag)
@@ -252,7 +175,7 @@ function handleKeyDown(event: KeyboardEvent) {
         if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
             return
         }
-        
+
         if (store.selectedElementId) {
             store.removeElement(store.selectedElementId)
         }

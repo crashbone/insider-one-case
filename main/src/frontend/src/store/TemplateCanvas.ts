@@ -1,45 +1,15 @@
+import { TemplateElement } from '@/models/TemplateElement'
 import { defineStore } from 'pinia'
 
 export type CanvasElementDraggingState = 'no-dragging' | 'dragging-out-canvas' | 'dragging-in-canvas'
+export type { ElementType } from '@/models/BaseElement'
 
-export type ElementType = 'heading' | 'text' | 'button' | 'image'
-
-export interface BaseElement {
-  id: string
-  type: ElementType
-  x: number
-  y: number
-  width: number
-  height: number
-}
-
-export interface TextBasedElement extends BaseElement {
-  type: 'heading' | 'text'
-  content: string
-  fontSize: number
-  color: string
-  alignment: 'left' | 'center' | 'right'
-}
-
-export interface ButtonElement extends BaseElement {
-  type: 'button'
-  text: string
-  backgroundColor: string
-  textColor: string
-  borderRadius: number
-}
-
-export interface ImageElement extends BaseElement {
-  type: 'image'
-  url: string
-  altText: string
-}
-
-export type CanvasElement = TextBasedElement | ButtonElement | ImageElement
+export const CANVAS_WIDTH = 400
+export const CANVAS_HEIGHT = 500
 
 export const useTemplateCanvasStore = defineStore('templateCanvas', {
   state: () => ({
-    elements: [] as CanvasElement[],
+    elements: [] as TemplateElement[],
     selectedElementId: null as string | null,
   }),
   getters: {
@@ -48,7 +18,7 @@ export const useTemplateCanvasStore = defineStore('templateCanvas', {
     },
   },
   actions: {
-    addElement(element: CanvasElement) {
+    addElement(element: TemplateElement) {
       this.elements.push(element)
     },
     removeElement(id: string) {
@@ -57,10 +27,10 @@ export const useTemplateCanvasStore = defineStore('templateCanvas', {
         this.selectedElementId = null
       }
     },
-    updateElement(id: string, updates: Partial<CanvasElement>) {
+    updateElement(id: string, updates: Partial<TemplateElement>) {
       const index = this.elements.findIndex(el => el.id === id)
       if (index !== -1) {
-        this.elements[index] = { ...this.elements[index], ...updates } as CanvasElement
+        this.elements[index] = { ...this.elements[index], ...updates } as TemplateElement
       }
     },
     selectElement(id: string | null) {
@@ -72,6 +42,17 @@ export const useTemplateCanvasStore = defineStore('templateCanvas', {
         this.elements[index].x = x
         this.elements[index].y = y
       }
+    },
+    isElementInCanvas(element: TemplateElement): boolean {
+      const elementCenterX = element.x + element.width / 2
+      const elementCenterY = element.y + element.height / 2
+
+      return (
+        elementCenterX >= 0 &&
+        elementCenterX <= CANVAS_WIDTH &&
+        elementCenterY >= 0 &&
+        elementCenterY <= CANVAS_HEIGHT
+      )
     },
   },
 })

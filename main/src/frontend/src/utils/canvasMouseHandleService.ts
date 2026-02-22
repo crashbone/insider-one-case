@@ -1,8 +1,3 @@
-/**
- * Minimum size for canvas elements during resize
- */
-export const MIN_SIZE = 50
-
 export interface Position {
   x: number
   y: number
@@ -30,22 +25,12 @@ export interface ResizeState {
   startRect: Rect
 }
 
-/**
- * Calculates the new size and position during resize operation based on handle position and mouse movement
- * When resizing from top or left edges, the position also changes to keep the opposite edge fixed
- * @param handle - The resize handle being dragged
- * @param deltaX - Mouse movement delta X
- * @param deltaY - Mouse movement delta Y
- * @param startRect - Initial rectangle with x, y, width, height
- * @param minSize - Minimum size object with w and h properties
- * @returns New rectangle object with x, y, width, height
- */
 export function calculateResize(
   handle: ResizeHandle,
   deltaX: number,
   deltaY: number,
   startRect: Rect,
-  minSize: { w: number; h: number } = { w: MIN_SIZE, h: MIN_SIZE }
+  minSize: { w: number; h: number } = { w: 1, h: 1 }
 ): Rect {
   // Copy original values
   let { x, y, width, height } = { ...startRect }
@@ -75,16 +60,6 @@ export function calculateResize(
   return { x, y, width, height }
 }
 
-/**
- * Calculates the new position during drag operation
- * @param startX - Initial mouse X position
- * @param startY - Initial mouse Y position
- * @param startElX - Initial element X position
- * @param startElY - Initial element Y position
- * @param currentX - Current mouse X position
- * @param currentY - Current mouse Y position
- * @returns New position object with x and y
- */
 export function calculateDragPosition(
   startX: number,
   startY: number,
@@ -98,11 +73,6 @@ export function calculateDragPosition(
   return { x: startElX + dx, y: startElY + dy }
 }
 
-/**
- * Sets up mouse event listeners for drag operation
- * @param onMove - Callback function called on mouse move with new position
- * @returns Cleanup function to remove event listeners
- */
 export function setupDragHandlers(
   onMove: (position: Position) => void
 ): () => void {
@@ -124,11 +94,6 @@ export function setupDragHandlers(
   }
 }
 
-/**
- * Sets up mouse event listeners for resize operation
- * @param onMove - Callback function called on mouse move with new size
- * @returns Cleanup function to remove event listeners
- */
 export function setupResizeHandlers(
   onMove: (size: Size) => void
 ): () => void {
